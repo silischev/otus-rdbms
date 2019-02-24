@@ -104,10 +104,10 @@ CREATE INDEX history_action_fk_idx
   ON advertisements_history (action_id ASC);
 
 --  INSERT DATA --
-INSERT INTO users (name, email, phone, password) VALUES
-  ('user_1', 'user_1@mail.com', '123-45-67', '$2y$10$tZymU9n9.8Sm8GR3fUbKPeZ2htXtBhTT1qmC6VerkrGbrTWGeLVYS'),
-  ('user_2', 'user_2@mail.com', '152-33-42', '$2y$10$tZymU9n9.8Sm8GR3fUbKPeZ2htXtBhTT1qmC6VerkrGbrTWGeLVYS'),
-  ('user_3', 'user_3@mail.com', '222-124-1551', '$2y$10$tZymU9n9.8Sm8GR3fUbKPeZ2htXtBhTT1qmC6VerkrGbrTWGeLVYS');
+INSERT INTO users (name, email, phone, password, created_at) VALUES
+  ('user_1', 'user_1@mail.com', '123-45-67', '$2y$10$tZymU9n9.8Sm8GR3fUbKPeZ2htXtBhTT1qmC6VerkrGbrTWGeLVYS', '2019-02-18 19:54:11'),
+  ('user_2', 'user_2@mail.com', '152-33-42', '$2y$10$tZymU9n9.8Sm8GR3fUbKPeZ2htXtBhTT1qmC6VerkrGbrTWGeLVYS', NOW()),
+  ('user_3', 'user_3@mail.com', '222-124-1551', '$2y$10$tZymU9n9.8Sm8GR3fUbKPeZ2htXtBhTT1qmC6VerkrGbrTWGeLVYS', NOW());
 
 INSERT INTO categories (id, name, parent_id) VALUES
   (1, 'Home electronics', null),

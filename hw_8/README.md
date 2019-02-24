@@ -1,6 +1,6 @@
 Запуск контейнера 
 
-`docker-compose up postgresl`
+`docker-compose up postgresql`
 
 Подключение к клиенту psql
 
