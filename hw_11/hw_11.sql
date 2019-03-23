@@ -24,3 +24,25 @@ FROM (
      ORDER BY length
      ) grouped_films
 ORDER BY group_num, rating;
+
+-- 3 (без аналитических ф-ций) --
+SELECT s.staff_id, s.last_name, c.customer_id, c.last_name, r.rental_date, r.rental_id
+FROM staff s
+     INNER JOIN rental r ON s.staff_id = r.staff_id
+     INNER JOIN customer c ON r.customer_id = c.customer_id
+WHERE r.rental_id =
+     (SELECT ri.rental_id FROM rental as ri WHERE ri.staff_id = s.staff_id ORDER BY ri.rental_date DESC LIMIT 1);
+
+-- с аналитическими ф-циями --
+WITH staff_groups AS (SELECT dense_rank() OVER (ORDER BY r.rental_date DESC) AS group_num,
+       r.staff_id,
+       r.rental_date,
+       r.rental_id
+FROM rental r
+ORDER BY r.rental_date DESC)
+
+SELECT s.staff_id, s.last_name, c.customer_id, c.last_name, r.rental_date, r.rental_id
+FROM staff s
+            INNER JOIN rental r ON s.staff_id = r.staff_id
+            INNER JOIN customer c ON r.customer_id = c.customer_id
+WHERE r.rental_id = (SELECT s_g.rental_id FROM staff_groups s_g WHERE s_g.staff_id=r.staff_id LIMIT 1);
