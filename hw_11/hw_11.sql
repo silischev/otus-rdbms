@@ -1,3 +1,4 @@
+-- 1 --
 SELECT row_number() OVER (PARTITION BY LEFT(title, 1)) AS num_by_film_name_first_letter,
        count(*) OVER() AS film_count,
        count(*) OVER(PARTITION BY LEFT(title, 1)) AS film_count_by_first_letter,
@@ -8,4 +9,18 @@ SELECT row_number() OVER (PARTITION BY LEFT(title, 1)) AS num_by_film_name_first
        title,
        description,
        release_year
-FROM film
+FROM film;
+
+-- 2 --
+SELECT *
+FROM (
+     SELECT dense_rank() OVER (ORDER BY length) AS group_num,
+            film.film_id,
+            film.title,
+            film_category.category_id,
+            film.rating
+     FROM film
+            INNER JOIN film_category ON film.film_id = film_category.film_id
+     ORDER BY length
+     ) grouped_films
+ORDER BY group_num, rating;
