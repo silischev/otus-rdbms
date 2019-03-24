@@ -46,3 +46,33 @@ FROM staff s
             INNER JOIN rental r ON s.staff_id = r.staff_id
             INNER JOIN customer c ON r.customer_id = c.customer_id
 WHERE r.rental_id = (SELECT s_g.rental_id FROM staff_groups s_g WHERE s_g.staff_id=r.staff_id LIMIT 1);
+
+-- 4 (без аналитических ф-ций) --
+WITH actors_films_info AS (SELECT a.actor_id aid, a.first_name afn, a.last_name aln, f.film_id fid, f.title ft, r.rental_date rd, r.rental_id rid
+FROM actor a
+      INNER JOIN film_actor fa on a.actor_id = fa.actor_id
+      INNER JOIN film f on fa.film_id = f.film_id
+      INNER JOIN rental r on fa.film_id = r.rental_id
+ORDER BY a.actor_id, r.rental_date DESC)
+
+SELECT aid, afn, aln, fid, ft, rd, rid
+FROM actors_films_info
+       INNER JOIN actor ON aid = actor.actor_id
+WHERE rd = (SELECT max(rd) FROM actors_films_info WHERE aid = actor.actor_id);
+
+-- с аналитическими ф-циями --
+SELECT aid, afn, aln, fid, ft, rd, rid FROM (
+    SELECT dense_rank() OVER (PARTITION BY a.actor_id ORDER BY r.rental_date DESC) group_num,
+           a.actor_id    aid,
+           a.first_name  afn,
+           a.last_name   aln,
+           f.film_id     fid,
+           f.title       ft,
+           r.rental_date rd,
+           r.rental_id   rid
+    FROM actor a
+           INNER JOIN film_actor fa on a.actor_id = fa.actor_id
+           INNER JOIN film f on fa.film_id = f.film_id
+           INNER JOIN rental r on fa.film_id = r.rental_id
+    ) t
+WHERE group_num = 1;
