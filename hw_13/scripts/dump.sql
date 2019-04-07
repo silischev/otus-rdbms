@@ -123,4 +123,39 @@ INSERT INTO history_actions (code, description) VALUES
   ('ADD_NEW_ADS', 'Add new ads by user'),
   ('CANCEL_ADS_NEW_BY_ADMIN', 'Cancel new ads by user'),
   ('CANCEL_ADS_NEW_BY_USER', 'Cancel new ads by admin'),
-  ('UPD_ADS_BY_USER', 'Update ads by user');
+  ('VIEW_ADS_BY_USER', 'View ads by user'),
+  ('UPD_ADS_BY_USER', 'Update ads by user'),
+  ('USER_DEL_PROFILE', 'User delete profile'),
+  ('USER_RESTORE_PROFILE', 'User restore profile');
+
+-- CRUD ads --
+START TRANSACTION;
+INSERT INTO advertisements (user_id, category_id, status_id, status_meta_data, title, description, address, phone, url, price) VALUES
+((SELECT id FROM users ORDER BY random() LIMIT 1), 2, 1, '{}', 'ads_1', 'description...', 'Spb, Lenina street', '123-4534', '/ads_1_23532', 1244);
+INSERT INTO advertisements_history (advertisement_id, action_id) VALUES ((SELECT currval('advertisements_id_seq')), (SELECT id FROM history_actions WHERE code = 'ADD_NEW_ADS' LIMIT 1));
+COMMIT;
+
+START TRANSACTION;
+INSERT INTO advertisements (user_id, category_id, status_id, status_meta_data, title, description, address, phone, url, price) VALUES
+((SELECT id FROM users ORDER BY random() LIMIT 1), 3, 3, '{"reason" : "Invalid data"}', 'ads_2', 'description...', 'Spb, Lenina street', '123-4534', '/ads_2_44333', 511);
+INSERT INTO advertisements_history (advertisement_id, action_id) VALUES ((SELECT currval('advertisements_id_seq')), (SELECT id FROM history_actions WHERE code = 'CANCEL_ADS_NEW_BY_ADMIN' LIMIT 1));
+COMMIT;
+
+START TRANSACTION;
+INSERT INTO advertisements (user_id, category_id, status_id, status_meta_data, title, description, address, phone, url, price) VALUES
+((SELECT id FROM users ORDER BY random() LIMIT 1), 1, 1, '{}', 'ads_3', 'description...', 'Spb, Lenina street', '123-4534', '/ads_3_34364', 5000);
+INSERT INTO advertisements_history (advertisement_id, action_id) VALUES ((SELECT currval('advertisements_id_seq')), (SELECT id FROM history_actions WHERE code = 'ADD_NEW_ADS' LIMIT 1));
+COMMIT;
+
+START TRANSACTION;
+WITH oldprice AS (SELECT price FROM advertisements WHERE id = (SELECT max(id) FROM advertisements) LIMIT 1)
+INSERT INTO advertisements_history (advertisement_id, action_id, metadata) VALUES ((SELECT max(id) FROM advertisements), (SELECT id FROM history_actions WHERE code = 'ADD_NEW_ADS' LIMIT 1), cast(concat('{"old_price" : "', CAST((SELECT price FROM oldprice) AS TEXT), '"}') AS JSON));
+WITH oldprice AS (SELECT price FROM advertisements WHERE id = (SELECT max(id) FROM advertisements) LIMIT 1)
+UPDATE advertisements SET price = (SELECT price FROM oldprice) + CAST(100 AS MONEY) WHERE id = (SELECT max(id) FROM advertisements);
+COMMIT;
+
+START TRANSACTION;
+UPDATE users SET deleted_at = NOW() WHERE id = (SELECT max(id) FROM users);
+UPDATE advertisements SET active = FALSE WHERE user_id = (SELECT max(id) FROM users);
+DELETE FROM favorite_advertisements WHERE user_id = (SELECT max(id) FROM users);
+COMMIT;
