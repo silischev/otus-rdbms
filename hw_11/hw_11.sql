@@ -45,7 +45,7 @@ SELECT s.staff_id, s.last_name, c.customer_id, c.last_name, r.rental_date, r.ren
 FROM staff s
             INNER JOIN rental r ON s.staff_id = r.staff_id
             INNER JOIN customer c ON r.customer_id = c.customer_id
-WHERE r.rental_id = (SELECT s_g.rental_id FROM staff_groups s_g WHERE s_g.staff_id=r.staff_id LIMIT 1);
+WHERE r.rental_id = (SELECT s_g.rental_id FROM staff_groups s_g WHERE s_g.staff_id=r.staff_id ORDER BY s_g.rental_date DESC LIMIT 1);
 
 -- 4 (без аналитических ф-ций) --
 WITH actors_films_info AS (SELECT a.actor_id aid, a.first_name afn, a.last_name aln, f.film_id fid, f.title ft, r.rental_date rd, r.rental_id rid
